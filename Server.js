@@ -9,14 +9,15 @@ import bodyParser from 'body-parser'
 const app = express()
 dotenv.config()
 
-const frontendUrl = process.env.FRONTEND_URL || 'https://twiitterr.netlify.app';
+
 const Port = process.env.PORT || 3333
 app.use(cors({
-    origin: frontendUrl,  // Frontend URL (React app)
-    credentials: true,                // Allow cookies to be sent with requests
+    origin: ['https://twiitterr.netlify.app'],  // Add live frontend URL here
+    credentials: true,                // Allow cookies to be sent
     methods: 'GET,POST,PUT',
     allowedHeaders: 'Content-Type,Authorization',
-  }));
+}));
+  
 // Middleware
 // app.use(cors({
 //     // origin: 'http://localhost:3000', // Replace with your frontend URL

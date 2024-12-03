@@ -175,31 +175,25 @@ router.get('/profile/:userId', verifytokenOptional, async (req, res) => {
 });
 
 
-// Get All User
-router.get('/users', verifytokenOptional, async (req, res) => {
+// Get all users except the logged-in user
+router.get('/', async (req, res) => {
     try {
-        // Extract token from request headers (if present)
-        const token = req.header('Authorization') ? req.header('Authorization').replace('Bearer ', '') : null;
+        // Extract token from headers (assuming it's sent as Authorization header)
+        const token = req.header('Authorization').replace('Bearer ', '');
+        
+        // Decode the token to get the userId
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const loggedInUserId = decoded.userId;
 
-        // If a token is provided, decode it to get the logged-in user's ID
-        let loggedInUserId = null;
-        if (token) {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            loggedInUserId = decoded.userId;
-        }
+        // Get all posts from the database, excluding the logged-in user
+        const users = await User.find({ _id: { $ne: loggedInUserId } }); // $ne = not equal to
 
-        // Find all users except the logged-in user
-        const users = loggedInUserId
-            ? await User.find({ _id: { $ne: loggedInUserId } }).select('-password')  // Exclude logged-in user
-            : await User.find().select('-password');  // If no token, return all users
-
-        res.status(200).json(users);  // Send users as response
+        res.status(200).json(users); // Send the users as a response
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Failed to retrieve users', success: false });
     }
 });
-
 
 // router.get('/profile/:userId', verifytoken,async (req, res) => {
 //     try {

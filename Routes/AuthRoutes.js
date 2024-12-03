@@ -55,6 +55,12 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign({ id: user._id  }, secretKey, { expiresIn: '1d' });
 
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true,  // Only set cookies over HTTPS
+            sameSite: 'None',  // Required if frontend and backend are on different domains
+            maxAge: 24 * 60 * 60 * 1000,  // Cookie expiry time (1 day)
+        });
         // Send token in JSON response
         return res.status(201).json({
             message: `Welcome back ${user.name}`,
@@ -144,10 +150,8 @@ router.post('/logout', (req, res) => {
 // };
 
 export const verifytoken = (req, res, next) => {
-    const token = req.cookies.token;
+    const token = req.headers['authorization']?.split(' ')[1] || req.cookies.token;
     
-    console.log("Token from cookies: ", token);  // Log the token to check if it's coming
-
     if (!token) {
         return res.status(401).json({ message: 'Authorization token is missing' });
     }
@@ -160,6 +164,7 @@ export const verifytoken = (req, res, next) => {
         return res.status(401).json({ message: 'Invalid token' });
     }
 };
+
 
 export const verifytokenOptional = (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
