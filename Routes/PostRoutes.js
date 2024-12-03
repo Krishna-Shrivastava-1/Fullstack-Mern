@@ -176,7 +176,7 @@ router.get('/profile/:userId', verifytokenOptional, async (req, res) => {
 
 
 // Get all users except the logged-in user
-router.get('/user', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         // Extract token from headers (assuming it's sent as Authorization header)
         const token = req.header('Authorization').replace('Bearer ', '');
